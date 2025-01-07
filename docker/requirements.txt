@@ -9,3 +9,5 @@ jupyter
 ipykernel
 category_encoders
 pickleshare
+sqlalchemy
+psycopg2-binary

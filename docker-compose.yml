@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15  # Use a compatible version
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: climb_wise_local
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persistent storage for database
+    ports:
+      - "5433:5432"
+
+  app:
+    build: .
+    command: bash -c "./jupyter/start_jupyter.sh && tail -f /app/log/jupyter.log"
+    volumes:
+      - .:/app
+    ports:
+      - "8887:8887"
+    depends_on:
+      - db
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: climb_wise_local
+
+volumes:
+  pgdata:
