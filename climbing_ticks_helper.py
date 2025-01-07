@@ -1,5 +1,7 @@
-from category_encoders import OrdinalEncoder
 import pandas as pd
+from sklearn.metrics import classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def lead_style_order():
     return['Onsight/Flash', 'Redpoint', 'Fell/Hung']
@@ -89,4 +91,24 @@ def combine_proba_predictions_with_data(df, proba_prediction):
                         'OS/F pred', 'RP pred', 'F/H pred', 'Lead Style',
                         '1 Attempt pred', '2 Attempts pred', '3+ Attempts pred', 'Attempts']]
 
+def print_classification_report(y_test, y_pred_df):
+    fig, ax = plt.subplots(1, len(y_test.columns), figsize=(8, 3))
+    if len(y_test.columns) == 1:
+        ax = [ax]  # Ensure ax is always a list
+    for i, resp in enumerate(y_test.columns):
+        cr = classification_report(y_test[resp], y_pred_df[resp], zero_division=0, output_dict=True)
+        if resp == 'Lead Style':
+            cr['Onsight/Flash'] = cr.pop('0')
+            cr['Redpoint'] = cr.pop('1')
+            cr['Fell/Hung'] = cr.pop('2')
+            cr['accuracy'] = cr.pop('accuracy')
+        cr.pop('macro avg', None)
+        cr.pop('weighted avg', None)
+        cr_df = pd.DataFrame(cr).T.round(2)
+        cr_df = cr_df.iloc[:, :-1]
+        
+        sns.heatmap(cr_df, annot=True, cmap='Reds', cbar=False, fmt='.2f', ax=ax[i])
+        ax[i].set_title(f"Classification Report for {resp}")
+    plt.tight_layout()
+    plt.show()
 
