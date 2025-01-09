@@ -11,3 +11,5 @@ category_encoders
 pickleshare
 sqlalchemy
 psycopg2-binary
+geoalchemy2
+folium
