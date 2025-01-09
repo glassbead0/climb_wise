@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-import pandas as pd
+import os
 
 Base = declarative_base()
 
@@ -80,7 +80,13 @@ class Route(Base):
 
 
 def get_engine():
-    db_url = f"postgresql://postgres:password@climb_wise-db-1:5432/climb_wise_local"
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_host = os.getenv('DB_HOST', 'localhost')
+    db_port = os.getenv('DB_PORT', '5432')
+    db_name = os.getenv('DB_NAME')
+    db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    # db_url = f"postgresql://postgres:password@climb_wise-db-1:5432/climb_wise_local"
     return create_engine(db_url)
 
 def get_sessionmaker(engine):
