@@ -1,4 +1,4 @@
-An experimental climbing prediction engine, based on Mountain Projec Tick data.
+An experimental climbing prediction engine, based on Mountain Project Tick data. Currently expanding Map & Geospatial capabilities.
 
 Requirements:
 * Docker (python, jupyter...etc all run in a docker container.)
