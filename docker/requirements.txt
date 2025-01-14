@@ -1,5 +1,6 @@
 numpy
 pandas
+geopandas
 matplotlib
 seaborn
 scikit-learn
@@ -12,4 +13,5 @@ pickleshare
 sqlalchemy
 psycopg2-binary
 geoalchemy2
+shapely
 folium

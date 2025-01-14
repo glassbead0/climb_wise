@@ -1,9 +1,13 @@
-from sqlalchemy.orm import Mapped, declarative_base, mapped_column
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column
+from sqlalchemy import create_engine, String, ARRAY, TIMESTAMP
+from typing import Optional
+from geoalchemy2 import Geometry
 import os
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
+
+### For Mountain Project Data Importing ###
 
 class Tick(Base):
     '''
@@ -33,7 +37,6 @@ class Tick(Base):
     def __repr__(self) -> str:
         return f'Tick(route={self.route})'
     
-
 class TickedRoute(Base):
     '''
     Represents a route that has been ticked. the difference between this and the Tick table
@@ -78,15 +81,57 @@ class Route(Base):
     protection: Mapped[str] = mapped_column(nullable=True)
     num_votes: Mapped[int] = mapped_column(nullable=True)
 
+### For GaiaGPS data importing ###
+
+class Trail(Base):
+    __tablename__ = 'trails'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(nullable=True)
+    color: Mapped[str] = mapped_column(nullable=True)
+    hexcolor: Mapped[str] = mapped_column(nullable=True)
+    notes: Mapped[str] = mapped_column(nullable=True)
+    track_type: Mapped[str] = mapped_column(nullable=True)
+    routing_mode: Mapped[str] = mapped_column(nullable=True)
+    distance: Mapped[float] = mapped_column(nullable=True)
+    total_ascent: Mapped[float] = mapped_column(nullable=True)
+    total_descent: Mapped[float] = mapped_column(nullable=True)
+    stopped_time: Mapped[float] = mapped_column(nullable=True)
+    total_time: Mapped[float] = mapped_column(nullable=True)
+    average_speed: Mapped[float] = mapped_column(nullable=True)
+    moving_time: Mapped[float] = mapped_column(nullable=True)
+    moving_speed: Mapped[float] = mapped_column(nullable=True)
+    activities: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
+    latitude: Mapped[float] = mapped_column(nullable=True)
+    longitude: Mapped[float] = mapped_column(nullable=True)
+    geometry: Mapped[Geometry] = mapped_column(Geometry('MULTILINESTRINGZ', dimension=3, srid=4326))
+    created_at: Mapped[Optional[TIMESTAMP]] = mapped_column(TIMESTAMP, default='now()')
+    # waypoints: Mapped[List["Waypoint"]] = relationship("Waypoint", back_populates="trail", cascade="all, delete-orphan")
+
+class Waypoint(Base):
+    __tablename__ = 'waypoints'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(nullable=True)
+    notes: Mapped[str] = mapped_column(nullable=True)
+    latitude: Mapped[float] = mapped_column(nullable=True)
+    longitude: Mapped[float] = mapped_column(nullable=True)
+    elevation: Mapped[int] = mapped_column(nullable=True)
+    marker_color: Mapped[str] = mapped_column(nullable=True)
+    geometry: Mapped[Geometry] = mapped_column(Geometry('POINT', srid=4326))
+    created_at: Mapped[Optional[TIMESTAMP]] = mapped_column(TIMESTAMP, default='now()')
+    # trail_id: Mapped[int] = mapped_column(ForeignKey('trails.id', ondelete='CASCADE'))
+    # trail: Mapped["Trail"] = relationship("Trail", back_populates="waypoints")
+
+### FUNCTIONS ###
 
 def get_engine():
-    db_user = os.getenv('DB_USER')
-    db_password = os.getenv('DB_PASSWORD')
-    db_host = os.getenv('DB_HOST', 'localhost')
+    db_user = os.getenv('DB_USER', 'postgres')
+    db_password = os.getenv('DB_PASSWORD', 'password')
+    db_host = os.getenv('DB_HOST', 'climb_wise-db-1')
     db_port = os.getenv('DB_PORT', '5432')
-    db_name = os.getenv('DB_NAME')
+    db_name = os.getenv('DB_NAME', 'climb_wise_local')
     db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-    # db_url = f"postgresql://postgres:password@climb_wise-db-1:5432/climb_wise_local"
     return create_engine(db_url)
 
 def get_sessionmaker(engine):
