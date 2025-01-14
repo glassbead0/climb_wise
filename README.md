@@ -31,3 +31,5 @@ Console:
 Future:
 * Graphing data in more interactive ways. Build a front-end interface with Highcharts perhaps?
 * If possible pull all route data from mountain project, and build a recommendation engine based on your ticks, star ratings, frequented areas...etc.
+
+![Sample Map](sample_climbing_area_and_trail_map.png)
