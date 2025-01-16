@@ -28,8 +28,10 @@ Console:
 * `docker exec -it climb_wise-db-1`
 * `psql -U postgres` (or you can change the default username/password)
 
-Future:
-* Graphing data in more interactive ways. Build a front-end interface with Highcharts perhaps?
-* If possible pull all route data from mountain project, and build a recommendation engine based on your ticks, star ratings, frequented areas...etc.
+Current and Future Explorations:
+* Graphing data in more interactive ways. Build a front-end interface with Highcharts
+* Traveling Salseman Problem w additional constraints like weather, seasonality for planning climbing/outdoor trips.)
+* Recommendation engine based on ticks, star ratings, frequented areas...etc.
+* Use map layers to get additional data about climbing routes/areas, such as rock type based on geology layers, and feed that into recommentation and/or prediction engines.
 
 ![Sample Map](sample_climbing_area_and_trail_map.png)
