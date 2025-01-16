@@ -1,1 +1,0 @@
-docker run -p 8887:8887 --name climb_wise -it --rm -v "$(pwd):/app" climb_wise_im

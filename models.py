@@ -1,8 +1,10 @@
+import os
 from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column
 from sqlalchemy import create_engine, String, ARRAY, TIMESTAMP
 from typing import Optional
 from geoalchemy2 import Geometry
-import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Base(DeclarativeBase):
     pass
@@ -126,10 +128,10 @@ class Waypoint(Base):
 ### FUNCTIONS ###
 
 def get_engine():
-    db_user = os.getenv('DB_USER', 'postgres')
-    db_password = os.getenv('DB_PASSWORD', 'password')
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
     db_host = os.getenv('DB_HOST', 'climb_wise-db-1')
-    db_port = os.getenv('DB_PORT', '5432')
+    db_port = os.getenv('DB_PORT', 5432)
     db_name = os.getenv('DB_NAME', 'climb_wise_local')
     db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     return create_engine(db_url)

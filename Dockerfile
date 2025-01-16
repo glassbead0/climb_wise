@@ -6,11 +6,16 @@ FROM python:3.13-slim
 WORKDIR /app
 
 # Install common utilities
-RUN apt-get update && apt-get install -y procps less vim curl wget net-tools iputils-ping graphviz
+RUN apt-get update && apt-get install -y procps less vim curl wget net-tools iputils-ping graphviz build-essential cmake
 
 # Install Python packages
 COPY docker/requirements.txt docker/
 RUN pip install --no-cache-dir -r docker/requirements.txt
+# needed because elkai doesn't have a prebiuld wheel for this docker image (Debian)
+RUN pip install elkai --no-binary elkai
+
+# Copy the .env file into the Docker container
+COPY .env /app/.env
 
 # create log directory
 RUN mkdir -p /app/log

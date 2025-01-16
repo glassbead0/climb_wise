@@ -4,4 +4,5 @@ log/jupyter.log
 .vscode/
 .env
 csv_files/mp_routes.csv
-
+geojson_files/gaia_data.geojson
+html_maps/gaia_trails_and_climbing_areas.html
