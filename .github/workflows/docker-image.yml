@@ -15,8 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the app Docker image
-      env:
-        DB_HOST: test
-        DB_USER: test
-        DB_PASSWORD: test
       run: docker build . --file Dockerfile --tag climb_wise-app:$(date +%s)

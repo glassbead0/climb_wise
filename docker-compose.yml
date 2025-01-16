@@ -3,14 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.postgres
-    environment:
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_DB: $DB_NAME
     volumes:
       - pgdata:/var/lib/postgresql/data  # Persistent storage for database
     ports:
       - "5433:5432"
+    env_file:
+      - .env
 
   app:
     build: .
@@ -21,11 +19,8 @@ services:
       - "8887:8887"
     depends_on:
       - db
-    environment:
-      DATABASE_HOST: db
-      DATABASE_USERNAME: $DB_USER
-      DATABASE_PASSWORD: $DB_PASSWORD
-      DATABASE_NAME: $DB_NAME
+    env_file:
+      - .env
 
 volumes:
   pgdata:

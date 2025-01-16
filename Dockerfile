@@ -14,9 +14,6 @@ RUN pip install --no-cache-dir -r docker/requirements.txt
 # needed because elkai doesn't have a prebiuld wheel for this docker image (Debian)
 RUN pip install elkai --no-binary elkai
 
-# Copy the .env file into the Docker container
-COPY .env /app/.env
-
 # create log directory
 RUN mkdir -p /app/log
 RUN touch /app/log/jupyter.log
