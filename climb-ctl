@@ -11,6 +11,8 @@ main() {
 __execute_arg() {
   if [[ ! ${COMMAND} || "${COMMAND}" == "-h" || "${COMMAND}" == "--help" ]]; then
     __display_help
+  elif [[ ${COMMAND} == "db-connect" ]]; then
+    __db_connect
   elif [[ ${COMMAND} == "logs" ]]; then
     __watch_logs
   elif [[ ${COMMAND} == "prune" ]]; then
@@ -36,6 +38,7 @@ __execute_arg() {
 __display_help() {
   echo ""
   echo "------------------- available arguments -------------------"
+  echo "db-connect - connect to the postgres db"
   echo "logs - watch database and app logs"
   echo "prune - remove containers"
   echo "rebuild - rebuild images"
@@ -46,6 +49,11 @@ __display_help() {
   echo "yolo - completely destroy and recreate all containers, images, and volumes"
 }
 
+__db_connect() {
+  echo ""
+  echo "== Connecting to DB =="
+  docker compose exec -it db bash
+}
 __start_dev() {
   echo ""
   echo "== Starting containers =="
