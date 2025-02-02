@@ -24,14 +24,12 @@ RUN mkdir -p /app/log
 RUN touch /app/log/jupyter.log
 RUN chmod 777 /app/log/jupyter.log
 
-# Copy some files into the container
-COPY jupyter/start_jupyter.sh jupyter/
-RUN chmod +x jupyter/start_jupyter.sh
-
 # Copy your project files into the container
 COPY . .
+RUN chmod +x jupyter/start_jupyter.sh
+RUN chmod +x docker/entrypoint.sh
 
 RUN echo "alias jc='jupyter console --existing'" >> ~/.bashrc && \
     echo "source ~/.bashrc" >> ~/.bash_profile
 
-CMD ["/app/jupyter/start_jupyter.sh && tail -f /app/log/jupyter.log"]
+CMD ["/app/docker/entrypoint.sh"]
