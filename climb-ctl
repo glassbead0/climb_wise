@@ -5,10 +5,10 @@ COMMAND=$1
 ARGS="${@:2}"
 
 main() {
-  __execute_arg $COMMAND
+  __execute_cmd $COMMAND
 }
 
-__execute_arg() {
+__execute_cmd() {
   if [[ ! ${COMMAND} || "${COMMAND}" == "-h" || "${COMMAND}" == "--help" ]]; then
     __display_help
   elif [[ ${COMMAND} == "db-connect" ]]; then
