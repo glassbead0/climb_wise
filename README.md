@@ -23,8 +23,7 @@ Usage:
 
 Console:
 * You can open a console in the Jupyter kernel to access all variables in your notebooks:
-* `./climb-ctl run bash`
-* from within the container: `jupyter console --existing` (or `jc` which is aliased.)
+* `./climb-ctl jc`
 * you can access the Postgres directly with:
 * `./climb-ctl db-connect`
 * `psql -U postgres` (or you can change the default username/password)
