@@ -20,3 +20,4 @@ scikit-build
 setuptools
 wheel
 python-dotenv
+xyzservices
