@@ -26,7 +26,6 @@ Console:
 * `./climb-ctl jc`
 * you can access the Postgres directly with:
 * `./climb-ctl db-connect`
-* `psql -U postgres` (or you can change the default username/password)
 
 Current and Future Explorations:
 * Graphing data in more interactive ways. Build a front-end interface with Highcharts
