@@ -11,6 +11,7 @@ ipykernel
 category_encoders
 pickleshare
 sqlalchemy
+sqlalchemy_utils
 psycopg2-binary
 geoalchemy2
 shapely
@@ -21,3 +22,6 @@ setuptools
 wheel
 python-dotenv
 xyzservices
+sympy
+alembic
+pangres
