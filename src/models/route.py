@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import TIMESTAMP, func, Table
+from sqlalchemy import func, Table
 from datetime import datetime
 from .base import Base
 
@@ -9,7 +9,7 @@ class Route(Base):
     '''
     __tablename__ = 'routes'
 
-    routeid: Mapped[int] = mapped_column(primary_key=True)
+    route_id: Mapped[int] = mapped_column(primary_key=True)
     route_name: Mapped[str] = mapped_column(nullable=False, default="?")
     location: Mapped[str] = mapped_column(nullable=True)
     url: Mapped[str] = mapped_column(nullable=True)
@@ -25,6 +25,8 @@ class Route(Base):
     desc: Mapped[str] = mapped_column(nullable=True)
     protection: Mapped[str] = mapped_column(nullable=True)
     num_votes: Mapped[int] = mapped_column(nullable=True)
+    predicted_lead_style: Mapped[str] = mapped_column(nullable=True)
+    predicted_attempts: Mapped[int] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now(), onupdate=func.now())
 

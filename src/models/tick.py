@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from base import Base
+from .base import Base
 
 class Tick(Base):
     '''
@@ -11,9 +11,11 @@ class Tick(Base):
     '''
     __tablename__ = 'ticks'
 
-    routeid: Mapped[int] = mapped_column(primary_key=True)
-    routename: Mapped[str] # not strictly necessary, but perhpas useful
+    route_id: Mapped[int] = mapped_column(primary_key=True)
+    route_name: Mapped[str] # not strictly necessary, but perhpas useful
     date: Mapped[str] = mapped_column(nullable=True)
+    your_stars: Mapped[float] = mapped_column(nullable=True)
+    style: Mapped[str] = mapped_column(nullable=True)
     lead_style: Mapped[str] = mapped_column(nullable=True)
     attempts: Mapped[int] = mapped_column(nullable=True)
     source: Mapped[str] = mapped_column(nullable=True)

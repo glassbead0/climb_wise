@@ -1,7 +1,6 @@
 # only run this once to create all database tables
 from ..models.base import Base, get_conn
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 
 def main():

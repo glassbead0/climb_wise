@@ -4,14 +4,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def normalize_column_names(df):
-    return df.columns.str.replace(' ', '_').str.lower()
+    '''
+    Replace spaces with underscores and make all columns lowercase.
+    Rename 'route' to 'route_name'.
+    make route_name the second column.
+    '''
+    df.columns = df.columns.str.replace(' ', '_').str.lower()
+    df = df.rename(columns={'route': 'route_name'})
+    cols = df.columns.tolist()
+    cols.insert(0, cols.pop(cols.index('route_name')))
+    df = df[cols]
+    return df
 
+def extract_route_id_from_url(df, position=-2):
+    df['route_id'] = df['url'].apply(lambda x: 0 if x.split('/')[position] == "route" else int(x.split('/')[position]))
+    return df
+                    
 def ordinal_mapping(df):
     ''' DF must have a 'date' column'''
     return [
         {'col': 'route_type', 'mapping': {'Sport': 0, 'Trad': 1}},
         {'col': 'date', 'mapping': {date: i for i, date in enumerate(df['date'].sort_values().unique())}},
         {'col': 'safety', 'mapping': {'G': 0, 'PG13': 1, 'R': 2, 'X': 3}},
+        {'col': 'alpine', 'mapping': {True: 0, False: 1}},
         {'col': 'lead_style', 'mapping': {'Onsight': 0, 'Flash': 1, 'Redpoint': 2, 'Fell/Hung': 3}},
         {'col': 'rating', 'mapping': {
             'Easy 5th': 0,
