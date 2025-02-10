@@ -3,7 +3,9 @@ from pangres import upsert
 from ...models.base import get_conn
 
 def main():
-    df = pd.read_csv("/app/csv_files/cleaned_mp_ticks.csv")
+    df = pd.read_csv("/app/csv_files/mp_ticks_cleaned.csv")
+    df = df.set_index('route_id')
+    df.index.name = 'route_id'
     engine, Session = get_conn()
 
     with Session() as session:

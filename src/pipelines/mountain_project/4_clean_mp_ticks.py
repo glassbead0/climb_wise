@@ -1,4 +1,5 @@
 import pandas as pd
+from ...helpers.tick_helper import normalize_column_names, extract_route_id_from_url
 
 def main():
     '''
@@ -6,35 +7,37 @@ def main():
     writes mp_ticks_cleaned.csv
     '''
     df_raw = pd.read_csv("/app/csv_files/mp_ticks_raw.csv")
-    df = initial_data_cleaning(df_raw.copy())
+    df = process_generic_area_ticks(df_raw.copy())
+    df = initial_data_cleaning(df)
     df = cleanup_multipitch_routes(df)
     df = group_by_route(df)
     df.to_csv('/app/csv_files/mp_ticks_cleaned.csv', index=False)
 
-def initial_data_cleaning(df):
-    df.columns = normalize_column_names(df)
-    df['route_name'] = df['route']
-    df['attempts'] = 1
-    df['source'] = 'MP'
-
-    df = process_generic_area_ticks(df)
-
-    # Get RouteID from URL
-    df['routeid'] = df['url'].apply(lambda x: x.split('/')[-2])
-
-    return df    
-
 def process_generic_area_ticks(df):
     '''
     I used chatgpt to extract the route names from the generic area notes, and put the new data into chatgpt_processed_generic_route_ticks.csv
-    The CSV also has generated routeid values in the url that don't overlap with MP ids.
+    The CSV also has generated route_id values in the url that don't overlap with MP ids.
     TODO: automate the chatGPT processing? that would definitly be an interesting challenge.
     '''
     df_generic = pd.read_csv("/app/csv_files/generic_mp_ticks_processed.csv")
-    df_generic.columns = normalize_column_names(df_generic)
 
-    df_non_generic = df[~df['location'].str.contains('Generic Area')]
+    df_non_generic = df[~df['Location'].str.contains('Generic Area')]
     df = pd.concat([df_non_generic, df_generic], ignore_index=True)
+    return df
+
+def initial_data_cleaning(df):
+    '''
+    Make data more readable:
+    use 'route_name' instead of 'route'
+    set sourcse to 'MP' (mountain project)
+    extract route_id from url
+    '''
+    df = normalize_column_names(df)
+    df['attempts'] = 1
+    df['source'] = 'MP'
+    df = extract_route_id_from_url(df)
+
+    return df    
 
 def cleanup_multipitch_routes(df):
     ''' This is messy logic here....
@@ -59,9 +62,12 @@ def cleanup_multipitch_routes(df):
 
 def group_by_route(df):
     # Reorder columns and drop unnecessary columns
-    df = df[['routeid', 'route_name', 'date', 'lead_style', 'attempts', 'source']]
+    df = df[['route_id', 'route_name', 'date', 'your_stars', 'style', 'lead_style', 'attempts', 'source']]
+    # Use an ordered categorical type in order to take the "min" of the lead style
+    df['style'] = pd.Categorical(df['style'], categories=['Solo','Lead','TR','Follow','Send','Flash','Attempt'], ordered=True)
+    df['lead_style'] = pd.Categorical(df['lead_style'], categories=['Onsight', 'Flash', 'Redpoint', 'Fell/Hung'], ordered=True)
 
-    df = df.groupby('routeid').agg({'route_name': 'first', 'date': 'last', 'source': 'first',
+    df = df.groupby('route_id').agg({'route_name': 'first', 'date': 'last', 'source': 'first', 'style': 'min',
                                     'lead_style': 'min',   'attempts': 'sum'}).reset_index()
 
     return df

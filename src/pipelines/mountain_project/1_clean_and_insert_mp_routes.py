@@ -1,8 +1,7 @@
 import pandas as pd
 from pangres import upsert
-from ...helpers.tick_helper import normalize_column_names
+from ...helpers.tick_helper import normalize_column_names, extract_route_id_from_url
 from ...models.base import get_conn
-from ...models.route import Route
 
 # Currently it's required to manually get this csv file from https://www.kaggle.com/datasets/pdegner/mountain-project-rotues-and-forums?select=mp_routes.csv
 # before runing this script
@@ -16,28 +15,19 @@ def main(csv_path):
 
 def clean_raw_mp_data(raw_csv_path):
     '''
-    Read raw data from csv, add a routeid column, handle unnamed routes and other data cleaning.
+    Read raw data from csv, add a route_id column, handle unnamed routes and other data cleaning.
     This requires the csv file to be in the correct location. TODO: use a Kaggle URL to fetch the data, or better yet switch to OpenBeta.
     '''
     df = pd.read_csv(raw_csv_path).drop(columns=['Unnamed: 0'])
-    df.columns = normalize_column_names(df)
-
-    df = extract_route_id(df)
-
+    df = normalize_column_names(df)
+    df = extract_route_id_from_url(df)
     df = extract_alpine(df)
-
-    df = extract_safe_rating(df)
-    
+    df = extract_safety_rating(df)
     df = handle_unnamed_routes(df)
-
-    df = df.set_index('routeid')
-    df.index.name = 'routeid'
+    df = df.set_index('route_id')
+    df.index.name = 'route_id'
 
     return df
-
-def extract_route_id(df):
-   df['routeid'] = df['url'].apply(lambda x: x.split('/')[-2])
-   return df
 
 def extract_alpine(df):
     '''separate out 'Alpine' from the 'Style' column'''
@@ -46,7 +36,7 @@ def extract_alpine(df):
     df['route_type'] = df['route_type'].str.replace(r', Alpine', '', regex=True)
     return df
 
-def extract_safe_rating(df):
+def extract_safety_rating(df):
     '''separate safety rating from main rating (PG13, R, X)'''
     df['safety'] = df['rating'].str.extract(r'(PG13|R|X)', expand=False)
     df['safety'] = df['safety'].fillna('G')
@@ -56,17 +46,15 @@ def extract_safe_rating(df):
 
 def handle_unnamed_routes(df):
     '''
-    Some routes are unnamed, which means the extracted routid will be wrong (it will be 'route').
-    Correctly set the routeid using the last element of the url.
+    Some routes are unnamed, which means the extracted routid will be 0 from the tick_helper.
+    Correctly set the route_id using the last element of the url.
     Set the name to "Unknown".
-    Rename column to the more descriptive route_name
     '''
-    unnamed_routes = df[df['routeid']=='route']
-    unnamed_routes['routeid'] = unnamed_routes['url'].apply(lambda x: x.split('/')[-1])
-    unnamed_routes['route'] = "Unknown"
+    unnamed_routes = df[df['route_id']==0]
+    unnamed_routes = extract_route_id_from_url(unnamed_routes, -1)
+    unnamed_routes['route_name'] = "Unknown"
     df.update(unnamed_routes)
-    df['route_name'] = df['route']
-    df = df.drop(columns=['route'])
+
     return df
 
 def insert_routes_in_batches(df, batch_size=5000):
