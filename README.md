@@ -1,13 +1,14 @@
 An experimental climbing prediction engine, based on Mountain Project Tick data. Currently expanding Map & Geospatial capabilities.
 
 Requirements:
-* Docker (python, jupyter...etc all run in a docker container.)
+* Docker (Python, Jupyter...etc all run in a Docker container.)
+* Docker Compose
 * Postgres (runs in Docker)
 
 Setup:
 * clone the repo.
-* `docker-compose build`
-* `docker-compose run`
+* create a `.env` file in the root of the repo, based on `./.env.example`
+* `./climb-ctl start`
 * This will start 2 containers
 * Jupyter server running on localhost:8887
 * Postgres container running on port 5433 locally (5432 within the docker container)
@@ -21,16 +22,14 @@ Usage:
 * `3_hyper_param_tuning.ipynb` does cross validation and hyper parameter tuning.
 
 Console:
-* You can open a console in the jupyter kernal to access all variables in your notebooks:
-* `docker exec -it climb_wise-app-1 /bin/bash`
-* from within the container: `jupyter console --existing` (or `jc` which is aliased.)
-* you can access the postgres db directly with:
-* `docker exec -it climb_wise-db-1`
-* `psql -U postgres` (or you can change the default username/password)
+* You can open a console in the Jupyter kernel to access all variables in your notebooks:
+* `./climb-ctl jc`
+* you can access the Postgres directly with:
+* `./climb-ctl db-connect`
 
 Current and Future Explorations:
 * Graphing data in more interactive ways. Build a front-end interface with Highcharts
-* Traveling Salseman Problem w additional constraints like weather, seasonality for planning climbing/outdoor trips.)
+* Traveling Salesman Problem w additional constraints like weather, seasonality for planning climbing/outdoor trips.)
 * Recommendation engine based on ticks, star ratings, frequented areas...etc.
 * Use map layers to get additional data about climbing routes/areas, such as rock type based on geology layers, and feed that into recommentation and/or prediction engines.
 

@@ -1,0 +1,153 @@
+#!/bin/bash
+
+set -e
+COMMAND=$1
+ARGS="${@:2}"
+
+main() {
+  __execute_cmd $COMMAND
+}
+
+__execute_cmd() {
+  if [[ ! ${COMMAND} || "${COMMAND}" == "-h" || "${COMMAND}" == "--help" ]]; then
+    __display_help
+  elif [[ ${COMMAND} == "db-connect" ]]; then
+    __db_connect
+  elif [[ ${COMMAND} == "jc" ]]; then
+    __jupyter_console
+  elif [[ ${COMMAND} == "logs" ]]; then
+    __watch_logs
+  elif [[ ${COMMAND} == "prune" ]]; then
+    __remove_containers
+  elif [[ ${COMMAND} == "rebuild" ]]; then
+    __rebuild_dev
+  elif [[ ${COMMAND} == "restart" ]]; then
+    __restart_dev
+  elif [[ ${COMMAND} == "run" ]]; then
+    __run_command $ARGS
+  elif [[ ${COMMAND} == "start" ]]; then
+    __start_dev
+  elif [[ ${COMMAND} == "stop" ]]; then
+    __stop_dev
+  elif [[ ${COMMAND} == "yolo" ]]; then
+    __yolo_environment
+  else
+    echo "./climb-ctl requires an argument. Example: './climb-ctl start'"
+    echo "No valid argument supplied."
+  fi
+}
+
+__display_help() {
+  echo ""
+  echo "------------------- available arguments -------------------"
+  echo "db-connect - connect to the postgres db"
+  echo "jc - open jupyter console on running app"
+  echo "logs - watch database and app logs"
+  echo "prune - remove containers"
+  echo "rebuild - rebuild images"
+  echo "restart - stops and restarts development environment"
+  echo "run - run a command on the app container"
+  echo "start - starts all containers"
+  echo "stop - stop all containers"
+  echo "yolo - completely destroy and recreate all containers, images, and volumes"
+}
+
+__db_connect() {
+  echo ""
+  echo "== Connecting to DB =="
+  docker compose exec -it db bash
+}
+
+__start_dev() {
+  echo ""
+  echo "== Starting containers =="
+  docker compose up -d
+}
+
+__stop_dev() {
+  echo ""
+  echo "== Stopping containers =="
+  docker compose down
+}
+
+__watch_logs(){
+  log_rm="docker compose logs -f"
+  echo "== Watching docker compose logs =="
+  eval $log_rm
+}
+
+__remove_containers() {
+  echo ""
+  echo "== Deleting all containers =="
+  existing_containers=$(docker ps -a | grep -i climb_wise) || true
+  if [[ ! -z "$existing_containers" ]]; then
+    container_ids=$(echo $existing_containers | awk '{print $1}' | tr '\n' ' ')
+    docker rm -f "${container_ids}"
+  else
+    echo "No containers to remove"
+  fi
+}
+
+__remove_images() {
+  echo ""
+  echo "== Removing images =="
+  existing_images=$(docker image ls -a | grep -i climb_wise) || true
+  if [[ ! -z "$existing_images" ]]; then
+    echo $existing_images | awk '{print $3}' | tr '\n' ' ' | xargs docker rmi
+  else
+    echo "No images to remove"
+  fi
+}
+
+__remove_volumes() {
+  echo ""
+  echo "== Removing volumes =="
+  existing_volumes=$(docker volume ls | grep -i climb_wise) || true
+  if [[ ! -z "$existing_volumes" ]]; then
+    volume_names=$(echo $existing_volumes | awk '{print $2}' | tr '\n' ' ')
+    docker volume rm -f "${volume_names}"
+  else
+    echo "No volumes to remove"
+  fi
+}
+
+__yolo_environment() {
+  echo "Warning: This will destroy all of your existing containers, volumes, and images. Do you wish to continue? [y/n]"
+  read -r destroy_dev_prompt
+
+  if [ $(echo $destroy_dev_prompt | tr '[:upper:]' '[:lower:]') != "y" ]; then
+    return
+  else
+    echo ""
+    echo "== Resetting docker environment =="
+    __stop_dev
+    __remove_containers
+    __remove_images
+    __remove_volumes
+    __start_dev
+  fi
+}
+
+__restart_dev() {
+  __stop_dev
+  __start_dev
+}
+
+__run_command() {
+  echo ""
+  echo "== Running command $@ =="
+  docker compose run -it --rm app $@
+}
+
+__rebuild_dev() {
+  echo ""
+  echo "== Rebuilding containers =="
+  __stop_dev
+  docker-compose up -d --build
+}
+
+__jupyter_console() {
+  docker compose exec -it app jupyter console --existing
+}
+
+main

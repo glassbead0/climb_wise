@@ -2,7 +2,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: Dockerfile.postgres
+      dockerfile: ./docker/Dockerfile.db
     volumes:
       - pgdata:/var/lib/postgresql/data  # Persistent storage for database
     ports:
@@ -11,8 +11,9 @@ services:
       - .env
 
   app:
-    build: .
-    command: bash -c "./jupyter/start_jupyter.sh && tail -f /app/log/jupyter.log"
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.app
     volumes:
       - .:/app
     ports:
