@@ -9,6 +9,13 @@ services:
       - "5433:5432"
     env_file:
       - .env
+    networks:
+      - airflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build:
@@ -22,6 +29,67 @@ services:
       - db
     env_file:
       - .env
+    networks:
+      - airflow-network
+
+  # airflow-init:
+  #   image: apache/airflow:latest
+  #   container_name: airflow-init
+  #   command: bash -c "airflow db upgrade && airflow users create --username airflow_user --password ${AIRFLOW_ADMIN_PASSWORD} --role Admin --firstname 'Airflow' --lastname 'Flowman' --email airflow@example.com"
+  #   environment:
+  #     AIRFLOW__CORE__EXECUTOR: LocalExecutor
+  #     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:${AIRFLOW_DB_PASSWORD}@db/airflow_db
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   networks:
+  #     - airflow-network
+
+  airflow-webserver:
+    image: apache/airflow:latest
+    container_name: airflow-webserver
+    restart: always
+    command: airflow webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      PYTHONPATH: /opt/airflow/src
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:${AIRFLOW_DB_PASSWORD}@db/airflow_db
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugin
+      - ./src:/opt/airflow/src
+
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - airflow-network
+
+  airflow-scheduler:
+    image: apache/airflow:latest
+    container_name: airflow-scheduler
+    restart: always
+    command: airflow scheduler
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:${AIRFLOW_DB_PASSWORD}@db/airflow_db
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/src
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - airflow-network
 
 volumes:
   pgdata:
+
+networks:
+  airflow-network:
+    driver: bridge
