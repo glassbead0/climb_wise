@@ -29,7 +29,4 @@ COPY . .
 RUN chmod +x jupyter/start_jupyter.sh
 RUN chmod +x docker/entrypoint.sh
 
-RUN echo "alias jc='jupyter console --existing'" >> ~/.bashrc && \
-    echo "source ~/.bashrc" >> ~/.bash_profile
-
 CMD ["/app/docker/entrypoint.sh"]

@@ -11,6 +11,8 @@ main() {
 __execute_cmd() {
   if [[ ! ${COMMAND} || "${COMMAND}" == "-h" || "${COMMAND}" == "--help" ]]; then
     __display_help
+  elif [[ ${COMMAND} == "app-connect" ]]; then
+  __app_connect
   elif [[ ${COMMAND} == "db-connect" ]]; then
     __db_connect
   elif [[ ${COMMAND} == "jc" ]]; then
@@ -21,6 +23,8 @@ __execute_cmd() {
     __remove_containers
   elif [[ ${COMMAND} == "rebuild" ]]; then
     __rebuild_dev
+  elif [[ ${COMMAND} == "commit" ]]; then
+    __commit_dev
   elif [[ ${COMMAND} == "restart" ]]; then
     __restart_dev
   elif [[ ${COMMAND} == "run" ]]; then
@@ -40,11 +44,13 @@ __execute_cmd() {
 __display_help() {
   echo ""
   echo "------------------- available arguments -------------------"
+  echo "app-connect - connect to the app container"
   echo "db-connect - connect to the postgres db"
   echo "jc - open jupyter console on running app"
   echo "logs - watch database and app logs"
   echo "prune - remove containers"
   echo "rebuild - rebuild images"
+  echo "commit - commit current changes to the app image"
   echo "restart - stops and restarts development environment"
   echo "run - run a command on the app container"
   echo "start - starts all containers"
@@ -56,6 +62,12 @@ __db_connect() {
   echo ""
   echo "== Connecting to DB =="
   docker compose exec -it db bash
+}
+
+__app_connect() {
+  echo ""
+  echo "== Connecting to App =="
+  docker compose exec -it app bash
 }
 
 __start_dev() {
@@ -144,6 +156,12 @@ __rebuild_dev() {
   echo "== Rebuilding containers =="
   __stop_dev
   docker-compose up -d --build
+}
+
+__commit_dev() {
+  echo ""
+  echo "== Committing changes to app image =="
+  docker commit $(docker ps -a | grep climb_wise_app | awk '{print $1}') climb_wise_app
 }
 
 __jupyter_console() {
