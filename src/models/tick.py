@@ -14,7 +14,7 @@ class Tick(Base):
     route_id: Mapped[int] = mapped_column(primary_key=True)
     route_name: Mapped[str] # not strictly necessary, but perhpas useful
     date: Mapped[str] = mapped_column(nullable=True)
-    your_stars: Mapped[float] = mapped_column(nullable=True)
+    # your_stars: Mapped[float] = mapped_column(nullable=True)
     style: Mapped[str] = mapped_column(nullable=True)
     lead_style: Mapped[str] = mapped_column(nullable=True)
     attempts: Mapped[int] = mapped_column(nullable=True)
