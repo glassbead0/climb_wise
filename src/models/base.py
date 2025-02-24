@@ -20,6 +20,12 @@ def get_sessionmaker(engine):
     return sessionmaker(bind=engine)
 
 def get_conn(db_name=os.getenv('POSTGRES_NAME', 'climb_wise_local_v2')):
+    """
+    Returns a connection to the database
+
+    Args:
+        db_name (str): The name of the database to connect to
+    """
     engine = get_engine(db_name)
     Session = get_sessionmaker(engine)
     return engine, Session
