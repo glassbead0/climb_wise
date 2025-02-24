@@ -2,7 +2,10 @@
 __pycache__/
 log/jupyter.log
 .vscode/
+logs/
 .env
 csv_files/mp_routes.csv
 geojson_files/gaia_data.geojson
 html_maps/gaia_trails_and_climbing_areas.html
+html_maps/van_trip_map.html
+.tool-versions
